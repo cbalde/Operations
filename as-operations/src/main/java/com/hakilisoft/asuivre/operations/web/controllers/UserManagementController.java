@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.RequestContext;
 
 import com.hakilisoft.asuivre.operations.domain.OAGroup;
@@ -37,12 +38,12 @@ import com.hakilisoft.asuivre.operations.web.forms.UserAssignForm;
 public class UserManagementController {
 
 	private static final String CREATE_USER_VIEW = "operations/usermanagement/users/create";
-	private static final String SHOW_USER_VIEW = "operations/usermanagement/users/show";
+	//private static final String SHOW_USER_VIEW = "operations/usermanagement/users/show";
 	private static final String LIST_USER_VIEW = "operations/usermanagement/users/list";
 	private static final String ASSIGN_TENANT_GROUP_USER_VIEW = "operations/usermanagement/users/assigntenantgroup";
 	
 	private static final String CREATE_GROUP_VIEW = "operations/usermanagement/groups/create";
-	private static final String SHOW_GROUP_VIEW = "operations/usermanagement/groups/show";
+	//private static final String SHOW_GROUP_VIEW = "operations/usermanagement/groups/show";
 	private static final String LIST_GROUP_VIEW = "operations/usermanagement/groups/list";
 	
 
@@ -186,6 +187,11 @@ public class UserManagementController {
     	return enrichedUsers;
     }
     
+    @RequestMapping(value = "/assigntenant/candidates/{userName}", produces = "application/json",method= RequestMethod.GET)
+    public @ResponseBody
+    String loadUsersByNameLike(@PathVariable("userName") String userName){
+    	return OAUtils.createOAUserJSONAsString(userManagementService.findOAUsersByNameLike(userName));
+    }
     
     @RequestMapping(value="/group", method = RequestMethod.POST, produces = "text/html")
     public String createGroup(@Valid OAGroup group, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {

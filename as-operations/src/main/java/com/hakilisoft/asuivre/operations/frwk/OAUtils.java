@@ -1,16 +1,24 @@
 package com.hakilisoft.asuivre.operations.frwk;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.SQLExec;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 
 import com.hakilisoft.asuivre.operations.domain.BusinessKey;
+import com.hakilisoft.asuivre.operations.domain.OAUser;
+import com.hakilisoft.asuivre.operations.domain.OAUserJSON;
 
 public class OAUtils {
 
@@ -27,6 +35,11 @@ public class OAUtils {
 	
 	
 	public static final String OPERATIONS_DEFAULT_BK = "Operations";
+	
+	/**
+	 * Logging system
+	 * */
+	private static Logger logger = Logger.getLogger(OAUtils.class); 
 	
 	/**
 	 * Keys in the 'message.properties' resource bundle. They represent the activity stream to be logged in @Suivre Operations central database  
@@ -76,5 +89,44 @@ public class OAUtils {
 	    executer.setUserid(userName);
 	    executer.setPassword(password);
 	    executer.execute();
-	}	
+	}
+	
+	/**
+	 * Create a JSON representation of a OAUser Set as a String
+	 * */
+	public static String createOAUserJSONAsString(List<OAUser> users) {
+		// configure to avoid timestamp representation
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+		String json = null;
+		try {
+			json = mapper.writeValueAsString(createUserJSONSet(users));
+			logger.debug("createOAUserJSONAsString() - Got Json for Dossier : " + json);
+		} catch (IOException e) {
+			logger.error("createOAUserJSONAsString() - Failed mapping Dossier into JSON. Cause: \n", e);
+		}
+		
+    	return json;
+	}
+	
+    /**
+   	 * Create a representation of a User Set that can be serialized into JSON
+        * */
+       public static Set<OAUserJSON> createUserJSONSet(List<OAUser> users ) {
+    	   
+       	Set<OAUserJSON> userJSONs = new HashSet<OAUserJSON>();
+       	
+       	for (OAUser user : users) {
+       		
+   			OAUserJSON userJSON = new OAUserJSON();
+   			
+   			userJSON.setId(user.getId());
+   			userJSON.setUserName(user.getUserName());
+   			userJSON.setFirstName(user.getFirstName());
+   			userJSON.setLastName(user.getLastName());
+   			userJSONs.add(userJSON);
+   			
+   		}
+       	return userJSONs;
+       }
 }

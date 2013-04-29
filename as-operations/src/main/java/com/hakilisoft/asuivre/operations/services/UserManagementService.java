@@ -44,6 +44,8 @@ public interface UserManagementService {
 	public void persist(OAGroup group);
 	
 	public OAGroup merge(OAGroup group);
+
+	List<OAUser> findOAUsersByNameLike(String userName);
 	
 	
 	

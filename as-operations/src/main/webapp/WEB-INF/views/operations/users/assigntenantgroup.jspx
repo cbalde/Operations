@@ -10,7 +10,10 @@
     <jsp:output omit-xml-declaration="yes"/>
     
     <spring:url value="/operations/usermanagement/users/assigntenantsgroups" var="assign_user_url" />
-    
+    <spring:url value="/operations/usermanagement/assigntenant/candidates/" var="load_users_ajax_url" />
+    <p class="row-fluid">
+    	<input type="text" autocomplete="on" dojoType="dijit.form.ComboBox" hasDownArrow="false" id="searchUserText" />
+    </p>
 	<div class="span10">
 	
 		<c:if test="${not empty assignedUser}">
@@ -47,7 +50,7 @@
 				
 				<div class="span3">
 				
-					<form:select path="tenantBusinessKey">
+					<form:select path="tenantBusinessKey" dojoType="dijit.form.FilteringSelect">
 					    <form:options items="${tenantBusinessKeys}" />
 					</form:select>				
 					
@@ -62,7 +65,6 @@
 				<div class="span2">
 					<button type="submit" name="action" value="search" class="btn btn-small"><span class="icon-search"></span></button>
 					<button type="submit" name="action" value="assign" class="btn btn-small"><span class="icon-plus-sign"></span></button>
-					<button type="submit" name="action" value="assignmentform" class="btn btn-small"><span class="icon-forward"></span></button>
 				</div>
 			</div>
 		
@@ -91,5 +93,43 @@
 			</table>
 		</p>
 	</div>
-    
+    <SCRIPT type="text/javascript">
+    	dojo.require("dijit.form.ComboBox");
+        dojo.require("dijit.form.FilteringSelect");
+        dojo.require("dojo.data.ItemFileReadStore");
+        
+    	function loadUsers(userName , wDom) {
+    				var xhrArgs = {
+    					url : "${load_users_ajax_url}" + userName,
+    					handleAs : "json",
+    					load : function(jsonData) {
+    						var storeJson = new dojo.data.ItemFileReadStore({
+    							data : {
+    								identifier : "userName",
+    								items : jsonData
+    							}
+    						});
+    						wDom.set("value", null);
+    						wDom.store = storeJson;
+    					}
+    				,
+    					    error: function(error){
+    					     alert("loadUsers :An unexpected error occurred: " + error.status);
+    					    }
+    				};
+    				dojo.xhrGet(xhrArgs);
+    			}
+        
+        dojo.ready(function(){
+        	
+        	var wSearchUser= dijit.byId("searchUserText");
+        	
+    		dojo.connect(wSearchUser, "onKeyUp", function() {
+    			if(wSearchUser.get("value") != ''){
+    				loadUsers(wSearchUser.get("value"), wSearchUser);
+    			}
+    		});
+        	
+        });
+    </SCRIPT>
 </div>

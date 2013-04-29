@@ -56,6 +56,26 @@ public class UserManagementServiceImpl implements UserManagementService {
 	}
 	
 	@Override
+    public List<OAUser> findOAUsersByNameLike(String userName) {
+    	
+        if (StringUtils.isEmpty(userName)) {
+        	throw new IllegalArgumentException("The userName argument is required");
+        }
+        
+        userName = userName.replace('*', '%');
+        if (userName.charAt(0) != '%') {
+        	userName = "%" + userName;
+        }
+        if (userName.charAt(userName.length() - 1) != '%') {
+        	userName = userName + "%";
+        }
+        
+        return entityManager.createQuery("SELECT o FROM OAUser AS o WHERE o.userName LIKE LOWER(:userName)", OAUser.class)
+        		.setParameter("userName", userName)
+        		.getResultList();
+    }
+	
+	@Override
 	public List<OAUserRoleInTenant> findOAUserRoleInTenantsByUserNameEquals(String userName) {
         if (StringUtils.isEmpty(userName)) 
         	throw new IllegalArgumentException("The userName argument is required");
